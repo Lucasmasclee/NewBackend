@@ -1,5 +1,5 @@
 const express = require('express');
-const stripe = require('stripe')('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'); // Replace with your secret key
+const stripe = require('stripe')('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'); // Replace with your live secret key
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
@@ -26,6 +26,34 @@ app.post('/create-payment-intent', async (req, res) => {
     }
 });
 
+// Route to confirm a PaymentIntent
+app.post('/confirm-payment', async (req, res) => {
+    try {
+        const { clientSecret, paymentMethod } = req.body;
 
+        // Extract PaymentIntent ID from the clientSecret
+        const paymentIntentId = clientSecret.split('_secret')[0];
+
+        // Confirm the PaymentIntent and attach the payment method
+        const paymentIntent = await stripe.paymentIntents.confirm(paymentIntentId, {
+            payment_method_data: paymentMethod,
+        });
+
+        res.status(200).send({
+            status: paymentIntent.status,
+            paymentIntent: paymentIntent,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: error.message });
+    }
+});
+
+// Health check endpoint (optional, for testing server)
+app.get('/', (req, res) => {
+    res.send('Stripe Payment API is running.');
+});
+
+// Start the server
 const PORT = 4242;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
