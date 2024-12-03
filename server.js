@@ -19,12 +19,14 @@ app.post('/create-payment-intent', async (req, res) => {
 
         res.status(200).send({
             clientSecret: paymentIntent.client_secret,
+            id: paymentIntent.id, // Include the ID in the response
         });
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: error.message });
     }
 });
+
 
 // Route to confirm a PaymentIntent
 app.post('/confirm-payment', async (req, res) => {
