@@ -33,9 +33,12 @@ app.post('/confirm-payment', async (req, res) => {
     try {
         const { clientSecret, paymentMethod } = req.body;
 
+        // Extract PaymentIntent ID from the clientSecret
+        const paymentIntentId = clientSecret.split('_secret')[0]; // Strip out the '_secret' part
+
         // Confirm the PaymentIntent with the payment method
-        const paymentIntent = await stripe.paymentIntents.confirm(clientSecret, {
-            payment_method: paymentMethod,  // Directly pass the payment method object
+        const paymentIntent = await stripe.paymentIntents.confirm(paymentIntentId, {
+            payment_method: paymentMethod, // Attach the payment method object
         });
 
         res.status(200).send({
